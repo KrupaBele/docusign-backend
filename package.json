@@ -2,10 +2,11 @@
   "name": "server",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm install && echo \"Build complete\""
-  },
+"scripts": {
+  "start": "node index.js",
+  "build": "npm install && echo \"Build complete\""
+}
+,
   "keywords": [],
   "author": "",
   "license": "ISC",
