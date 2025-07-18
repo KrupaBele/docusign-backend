@@ -18,7 +18,7 @@ async function generateSignedPDF(documentId) {
     console.log(`\ud83d\uddd8\ufe0f Total fields: ${request.fields.length}`);
 
     let pdfDoc;
-    let pages;
+    let pages = [];
 
     if (request.fileType === "text/plain") {
       console.log("📝 Creating new PDF from text content");
@@ -52,6 +52,13 @@ async function generateSignedPDF(documentId) {
         if (y < 50) break;
       }
 
+      pages = pdfDoc.getPages();
+    } else {
+      // Handle regular PDF files
+      const existingPdfBytes = await fetch(request.fileUrl).then((res) =>
+        res.arrayBuffer()
+      );
+      pdfDoc = await PDFDocument.load(existingPdfBytes);
       pages = pdfDoc.getPages();
     }
 
