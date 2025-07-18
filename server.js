@@ -11,7 +11,16 @@ const SignatureRequest = require("./models/SignatureRequest");
 const generateSignedPDF = require("./utils/generateSignedPDF");
 
 const app = express();
-app.use(cors());
+// Replace the simple cors() with explicit origins
+const corsOptions = {
+  origin: [
+    "https://your-frontend-domain.vercel.app", // Your production frontend
+    "http://localhost:3000", // Local development
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Serve uploaded files
