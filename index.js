@@ -14,7 +14,7 @@ const app = express();
 // Replace the simple cors() with explicit origins
 const corsOptions = {
   origin: [
-    "https://docusign-frontend-nblnvd4fy-krupabeles-projects.vercel.app", // Your production frontend
+    "https://docusign-frontend-95vm.vercel.app", // Your production frontend
     // "http://localhost:3000", // Local development
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -30,6 +30,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/templates", require("./routes/templates"));
 app.use("/api/upload", require("./routes/upload"));
 app.use("/api/signatures", signaturesRoute);
+
+app.get("/api/status", (req, res) => {
+  res.send("Server running successfully!");
+});
 
 // 🔹 SIGN DOCUMENT AND GENERATE FINAL SIGNED PDF
 app.post("/api/signatures/:id/sign", async (req, res) => {
