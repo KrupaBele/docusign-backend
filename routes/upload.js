@@ -29,6 +29,7 @@ router.post("/", upload.single("file"), (req, res) => {
   // Return both fileUrl and fileType
   res.status(200).json({
     fileUrl,
+    protocol: req.protocol,
     fileType: req.file.mimetype, // This should be automatically detected by multer
   });
 });
