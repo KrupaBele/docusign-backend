@@ -14,8 +14,8 @@ const app = express();
 // Replace the simple cors() with explicit origins
 const corsOptions = {
   origin: [
-    "https://your-frontend-domain.vercel.app", // Your production frontend
-    "http://localhost:3000", // Local development
+    "https://docusign-j3qcructn-krupabeles-projects.vercel.app/", // Your production frontend
+    // "http://localhost:3000", // Local development
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
