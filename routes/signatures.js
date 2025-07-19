@@ -47,7 +47,7 @@ router.post("/send", async (req, res) => {
 
     await Promise.all(
       recipients.map(async (recipient) => {
-        const signLink = `http://localhost:5173/sign/${
+        const signLink = `https://docusign-frontend-tawny.vercel.app/sign/${
           savedRequest._id
         }?recipient=${encodeURIComponent(recipient.email)}`;
 
