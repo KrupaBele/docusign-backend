@@ -96,11 +96,9 @@ router.get("/:id", async (req, res) => {
   try {
     const request = await SignatureRequest.findById(req.params.id);
     if (!request) {
-      return res
-        .status(403)
-        .json({
-          error: `document ${req.params.id} : ${JSON.stringify(request)}`,
-        });
+      return res.status(403).json({
+        error: `document ${req.params.id} : ${JSON.stringify(request)}`,
+      });
     }
 
     // If it's a text document and no fileUrl exists, ensure documentContent is included
@@ -165,7 +163,7 @@ router.post("/api/signatures/:id/sign", async (req, res) => {
       const filePath = path.join(__dirname, "../uploads", fileName);
 
       fs.writeFileSync(filePath, pdfBytes);
-      signatureRequest.fileUrl = `http://localhost:5000/uploads/${fileName}`;
+      signatureRequest.fileUrl = `https://docusign-backend.onrender.com/uploads/${fileName}`;
     }
 
     await signatureRequest.save();
