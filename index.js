@@ -15,7 +15,7 @@ const app = express();
 const corsOptions = {
   origin: [
     "https://docusign-frontend-tawny.vercel.app", // Your production frontend
-    // "http://localhost:5173", // Local development
+    "http://localhost:5173", // Local development
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
