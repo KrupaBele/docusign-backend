@@ -96,7 +96,11 @@ router.get("/:id", async (req, res) => {
   try {
     const request = await SignatureRequest.findById(req.params.id);
     if (!request) {
-      return res.status(404).json({ error: "Document not found" });
+      return res
+        .status(403)
+        .json({
+          error: `document ${req.params.id} : ${JSON.stringify(request)}`,
+        });
     }
 
     // If it's a text document and no fileUrl exists, ensure documentContent is included
