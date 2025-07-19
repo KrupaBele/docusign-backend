@@ -5,10 +5,17 @@ const mongoose = require("mongoose");
 const path = require("path");
 const fs = require("fs");
 const slugify = require("slugify");
-
 const signaturesRoute = require("./routes/signatures");
 const SignatureRequest = require("./models/SignatureRequest");
 const generateSignedPDF = require("./utils/generateSignedPDF");
+
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const app = express();
 // Replace the simple cors() with explicit origins
@@ -24,7 +31,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Serve uploaded files
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Routes
 app.use("/api/templates", require("./routes/templates"));
@@ -77,16 +84,36 @@ app.post("/api/signatures/:id/sign", async (req, res) => {
         fs.mkdirSync(path.join(__dirname, "uploads"));
       }
 
-      fs.writeFileSync(filePath, pdfBytes);
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "raw", // important for PDF
+          public_id: `signed_docs/${slugify(document.documentTitle)}_signed`,
+          format: "pdf",
+        },
+        async (error, result) => {
+          if (error) {
+            console.error("Cloudinary upload error:", error);
+            return res.status(500).json({ error: "Cloudinary upload failed" });
+          }
 
-      // Update document with final signed version
-      document.fileUrl = `/uploads/${fileName}`;
+          // Update document with final signed version
+          document.fileUrl = result.secure_url;
+          document.status = "completed";
+          await document.save();
+
+          res.json({
+            message: "Document signed and uploaded",
+            fileUrl: result.secure_url,
+          });
+        }
+      );
+
+      // pipe pdfBytes to Cloudinary upload stream
+      const bufferStream = require("streamifier").createReadStream(pdfBytes);
+      bufferStream.pipe(uploadStream);
+
       document.status = "completed";
       await document.save();
-
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename=${fileName}`);
-      res.send(pdfBytes);
     } else {
       res.json(document);
     }

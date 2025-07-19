@@ -47,7 +47,7 @@ router.post("/send", async (req, res) => {
 
     await Promise.all(
       recipients.map(async (recipient) => {
-        const signLink = `https://docusign-frontend-tawny.vercel.app/sign/${
+        const signLink = `http://localhost:5173/sign/${
           savedRequest._id
         }?recipient=${encodeURIComponent(recipient.email)}`;
 
@@ -159,11 +159,33 @@ router.post("/api/signatures/:id/sign", async (req, res) => {
       // Generate final signed document with ALL fields
       // Use generateSignedPDF instead of generateFinalSignedPDF
       const pdfBytes = await generateSignedPDF(signatureRequest._id);
-      const fileName = `${slugify(signatureRequest.documentTitle)}_signed.pdf`;
-      const filePath = path.join(__dirname, "../uploads", fileName);
+      const fileName = `${slugify(signatureRequest.documentTitle)}_signed`;
 
-      fs.writeFileSync(filePath, pdfBytes);
-      signatureRequest.fileUrl = `https://docusign-backend.onrender.com/uploads/${fileName}`;
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "raw",
+          public_id: `signed_pdfs/${fileName}`,
+          format: "pdf",
+        },
+        async (error, result) => {
+          if (error) {
+            console.error("Cloudinary upload error:", error);
+            return res
+              .status(500)
+              .json({ message: "Cloudinary upload failed" });
+          }
+
+          signatureRequest.fileUrl = result.secure_url;
+          await signatureRequest.save();
+
+          return res.json({
+            message: "Signed successfully",
+            fileUrl: signatureRequest.fileUrl,
+          });
+        }
+      );
+
+      streamifier.createReadStream(pdfBytes).pipe(uploadStream);
     }
 
     await signatureRequest.save();
