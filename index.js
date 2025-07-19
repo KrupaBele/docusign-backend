@@ -86,7 +86,7 @@ app.post("/api/signatures/:id/sign", async (req, res) => {
 
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          resource_type: "raw", // important for PDF
+          resource_type: "auto", // important for PDF
           public_id: `signed_docs/${slugify(document.documentTitle)}_signed`,
           format: "pdf",
         },
