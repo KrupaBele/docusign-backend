@@ -179,6 +179,7 @@ router.post("/api/signatures/:id/sign", async (req, res) => {
           await signatureRequest.save();
 
           return res.json({
+            success: true,
             message: "Signed successfully",
             fileUrl: signatureRequest.fileUrl,
           });
@@ -190,6 +191,7 @@ router.post("/api/signatures/:id/sign", async (req, res) => {
 
     await signatureRequest.save();
     return res.json({
+      success: true,
       message: "Signed successfully",
       fileUrl: signatureRequest.fileUrl,
     });
