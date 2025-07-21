@@ -47,7 +47,7 @@ router.post("/send", async (req, res) => {
 
     await Promise.all(
       recipients.map(async (recipient) => {
-        const signLink = `https://docusign-frontend-tawny.vercel.app/sign/${
+        const signLink = `http://localhost:5173/sign/${
           savedRequest._id
         }?recipient=${encodeURIComponent(recipient.email)}`;
 
@@ -147,6 +147,13 @@ router.post("/api/signatures/:id/sign", async (req, res) => {
     const recipient = signatureRequest.recipients.find(
       (r) => r._id.toString() === recipientId
     );
+    if (recipient?.signed) {
+      return res.status(400).json({
+        success: false,
+        message: "You have already signed this document.",
+      });
+    }
+
     if (recipient) {
       recipient.signed = true;
     }
