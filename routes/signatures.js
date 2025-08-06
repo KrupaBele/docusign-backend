@@ -219,4 +219,22 @@ router.get("/", async (req, res) => {
   }
 });
 
+// DELETE /api/signatures/:id - Delete a signature request
+router.delete("/:id", async (req, res) => {
+  try {
+    const deleted = await SignatureRequest.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Document not found" });
+    }
+    res
+      .status(200)
+      .json({ success: true, message: "Document deleted successfully" });
+  } catch (err) {
+    console.error("❌ Delete failed:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 module.exports = router;

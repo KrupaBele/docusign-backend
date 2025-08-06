@@ -100,7 +100,7 @@ async function generateSignedPDF(documentId) {
       if (adjustedY < 0) {
         adjustedY = 0;
       } else if (adjustedY + field.height > pageHeight) {
-        adjustedY = pageHeight - field.height;
+        adjustedY = pageHeight;
       }
 
       try {
@@ -126,14 +126,27 @@ async function generateSignedPDF(documentId) {
           }
 
           const isTextFile = request.fileType === "text/plain";
-          const shouldNotShift = field.x > field.renderedWidth;
+          const isNarrowPDF =
+            field.renderedWidth &&
+            field.renderedHeight &&
+            field.renderedWidth < field.renderedHeight;
+          const shouldNotShift = isNarrowPDF
+            ? field.x - 100 > field.renderedWidth
+            : field.x + 30 > field.renderedWidth;
+
+          const isWideRender =
+            field.renderedWidth && field.renderedWidth > 1000;
 
           page.drawImage(image, {
             x: isTextFile
               ? adjustedX
+              : isWideRender
+              ? field.x - field.width
               : shouldNotShift
               ? adjustedX
-              : adjustedX - field.width,
+              : isNarrowPDF
+              ? field.x - field.width - 200
+              : field.x - field.width - 100,
             y: adjustedY,
             width: field.width,
             height: field.height,
@@ -142,12 +155,31 @@ async function generateSignedPDF(documentId) {
 
           successfullyAdded++;
         } else if (field.signedData.type === "type") {
+          const isTextFile = request.fileType === "text/plain";
+          const isNarrowPDF =
+            field.renderedWidth &&
+            field.renderedHeight &&
+            field.renderedWidth < field.renderedHeight;
+          const shouldNotShift = isNarrowPDF
+            ? field.x - 100 > field.renderedWidth
+            : field.x + 30 > field.renderedWidth;
+
+          const isWideRender =
+            field.renderedWidth && field.renderedWidth > 1000;
           const { text } = JSON.parse(field.signedData.data);
           const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
           const fontSize = Math.min(field.height * 0.7, 14);
           page.drawText(text, {
-            x: adjustedX,
-            y: adjustedY + (field.height - fontSize) / 2,
+            x: isTextFile
+              ? adjustedX
+              : isWideRender
+              ? field.x - field.width / 2
+              : shouldNotShift
+              ? adjustedX + field.width / 2
+              : isNarrowPDF
+              ? field.x - field.width / 2 - 200
+              : field.x - field.width / 2 - 100,
+            y: adjustedY + field.height / 2,
             size: fontSize,
             font,
           });
