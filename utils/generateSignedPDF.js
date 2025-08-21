@@ -130,12 +130,14 @@ async function generateSignedPDF(documentId) {
             field.renderedWidth &&
             field.renderedHeight &&
             field.renderedWidth < field.renderedHeight;
-          const shouldNotShift = isNarrowPDF
-            ? field.x - 100 > field.renderedWidth
-            : field.x + 30 > field.renderedWidth;
 
           const isWideRender =
             field.renderedWidth && field.renderedWidth > 1000;
+          const shouldNotShift = isNarrowPDF
+            ? field.x - 100 > field.renderedWidth
+            : isWideRender
+            ? field.x + 30 > field.renderedWidth
+            : field.x - 50 > field.renderedWidth;
 
           page.drawImage(image, {
             x: isTextFile
@@ -146,8 +148,9 @@ async function generateSignedPDF(documentId) {
               ? adjustedX
               : isNarrowPDF
               ? field.x - field.width - 200
-              : field.x - field.width - 100,
-            y: adjustedY,
+              : field.x - field.width - 85,
+            // y: adjustedY ,
+            y: adjustedY + 10,
             width: field.width,
             height: field.height,
             opacity: 1,
